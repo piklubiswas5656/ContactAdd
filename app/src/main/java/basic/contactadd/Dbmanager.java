@@ -53,4 +53,11 @@ public class Dbmanager extends SQLiteOpenHelper {
         return cursor;
 
     }
+
+    public void deleteEntry(String name) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery("Select * from tbl_contct where name=?", new String[]{name});
+        db.delete("tbl_contct", "name=?", new String[]{name});
+    }
 }

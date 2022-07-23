@@ -3,13 +3,17 @@ package basic.contactadd;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -71,17 +75,18 @@ public class MainActivity extends AppCompatActivity {
         while (cursor.moveToNext()) {
             byte[] bitmapp = cursor.getBlob(3);
             Bitmap imag = BitmapFactory.decodeByteArray(bitmapp, 0, bitmapp.length);
-            CDel obj = new CDel(cursor.getString(1), cursor.getString(2), imag);
+            CDel obj = new CDel(cursor.getInt(0),cursor.getString(1), cursor.getString(2), imag);
             data.add(obj);
 //            adapter.notifyItemInserted(data.size() - 1);
 //            recyclerView.scrollToPosition(data.size() - 1);
         }
-        adapter = new ContacAdapter(data, getApplicationContext());
+        adapter = new ContacAdapter(data, getApplicationContext(), cursor);
         recyclerView.setAdapter(adapter);
 
     }
 
     private void onClick() {
+
 
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,10 +95,9 @@ public class MainActivity extends AppCompatActivity {
                 dialog.setContentView(R.layout.update_contact);
                 nameEdit = dialog.findViewById(R.id.name);
                 phoneEdit = dialog.findViewById(R.id.phoneNumber);
-                btnUpload = dialog.findViewById(R.id.upload_image);
                 btnAdd = dialog.findViewById(R.id.addNumber);
                 imageView = dialog.findViewById(R.id.image_view);
-                btnUpload.setOnClickListener(view1 -> {
+                imageView.setOnClickListener(view1 -> {
                   /*  Intent iGallery = new Intent(Intent.ACTION_PICK);
                     iGallery.setData(MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                     startActivityForResult(iGallery, PICK_IMAGE);
@@ -127,6 +131,8 @@ public class MainActivity extends AppCompatActivity {
                         bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArray);
                         byte[] img = byteArray.toByteArray();
 
+
+                        //for add record
                         String res = new Dbmanager(getApplicationContext()).addrecord(name, phone, img);
                         Toast.makeText(getApplicationContext(), res, Toast.LENGTH_LONG).show();
 
@@ -137,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
                         Bitmap imag = BitmapFactory.decodeByteArray(bitmapp, 0, bitmapp.length);
 
 
-                        CDel obj = new CDel(cursor.getString(1), cursor.getString(2), imag);
+                        CDel obj = new CDel(cursor.getInt(0),cursor.getString(1), cursor.getString(2), imag);
                         data.add(obj);
                         adapter.notifyItemInserted(data.size() - 1);
                         recyclerView.scrollToPosition(data.size() - 1);
@@ -191,6 +197,32 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "text", Toast.LENGTH_LONG).show();
             }
         });*/
+    }
+
+    @Override
+    public void onBackPressed() {
+        AlearDilog();
+    }
+
+    private void AlearDilog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Are you sure you wants to exit?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        MainActivity.super.onBackPressed();
+                        finishAffinity();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 
     @Override
