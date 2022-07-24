@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,6 +19,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.ColorDrawable;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
@@ -65,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void iniit() {
         recyclerView = findViewById(R.id.recyclerview);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         floatingActionButton = findViewById(R.id.floating_button);
 //        storeDate();
 
@@ -75,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         while (cursor.moveToNext()) {
             byte[] bitmapp = cursor.getBlob(3);
             Bitmap imag = BitmapFactory.decodeByteArray(bitmapp, 0, bitmapp.length);
-            CDel obj = new CDel(cursor.getInt(0),cursor.getString(1), cursor.getString(2), imag);
+            CDel obj = new CDel(cursor.getInt(0), cursor.getString(1), cursor.getString(2), imag);
             data.add(obj);
 //            adapter.notifyItemInserted(data.size() - 1);
 //            recyclerView.scrollToPosition(data.size() - 1);
@@ -93,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 dialog = new Dialog(MainActivity.this);
                 dialog.setContentView(R.layout.update_contact);
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
                 nameEdit = dialog.findViewById(R.id.name);
                 phoneEdit = dialog.findViewById(R.id.phoneNumber);
                 btnAdd = dialog.findViewById(R.id.addNumber);
@@ -106,8 +109,9 @@ public class MainActivity extends AppCompatActivity {
                             .galleryOnly()
                             .crop()
                             .cropSquare()
+                            .crop(9f, 16f)
                             .compress(1024)            //Final image size will be less than 1 MB(Optional)
-                            .maxResultSize(512, 512)    //Final image resolution will be less than 1080 x 1080(Optional)
+                            .maxResultSize(512, 960)    //Final image resolution will be less than 1080 x 1080(Optional)
                             .start();
 
 
@@ -143,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
                         Bitmap imag = BitmapFactory.decodeByteArray(bitmapp, 0, bitmapp.length);
 
 
-                        CDel obj = new CDel(cursor.getInt(0),cursor.getString(1), cursor.getString(2), imag);
+                        CDel obj = new CDel(cursor.getInt(0), cursor.getString(1), cursor.getString(2), imag);
                         data.add(obj);
                         adapter.notifyItemInserted(data.size() - 1);
                         recyclerView.scrollToPosition(data.size() - 1);
